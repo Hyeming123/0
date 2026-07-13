@@ -213,39 +213,37 @@
           onerror="this.src='https://placehold.co/40x40/0d6efd/ffffff?text=H';">
         <span>HERMA-X</span>
       </a>
+      <button class="navbar-toggler ms-auto" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
 
-<div class="d-flex align-items-center me-auto gap-2" id="navAuthArea">
-  <a class="btn btn-sm btn-outline-primary" href="login.html">로그인</a>
-  <div class="dropdown">
-    <button class="btn btn-sm btn-primary dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      회원가입
-    </button>
-    <ul class="dropdown-menu dropdown-menu-end">
-      <li><a class="dropdown-item" href="signup.html">개인 회원가입</a></li>
-      <li><a class="dropdown-item" href="signup_company.html">기업 회원가입</a></li>
-    </ul>
-  </div>
-</div>
+      <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">메인</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="app.html">마켓플레이스</a>
+        </li>
+        <li class="nav-item" id="navDashboardLink" style="display: none;">
+          <a class="nav-link" href="dashboard_company.html">기업 대시보드</a>
+        </li>
+      </ul>
+      <div class="d-flex align-items-center ms-auto gap-2" id="navAuthArea">
+        <a class="btn btn-sm btn-outline-primary" href="login.html">로그인</a>
+        <div class="dropdown">
+          <button class="btn btn-sm btn-primary dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+            회원가입
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="signup.html">개인 회원가입</a></li>
+            <li><a class="dropdown-item" href="signup_company.html">기업 회원가입</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </nav>
 
-<!-- 2. [독립 영역] 모바일용 삼선(☰) 토글 버튼 (화면이 줄어들 때만 깜빡이며 나타남) -->
-<button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-  <span class="navbar-toggler-icon"></span>
-</button>
-
-<!-- 3. [독립 영역] 삼선 버튼을 누르면 찌리릿 펼쳐질 실제 메뉴 리스트 -->
-<div class="collapse navbar-collapse" id="navbarNavDropdown">
-  <ul class="navbar-nav">
-    <li class="nav-item">
-      <a class="nav-link" href="index.html">메인</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="app.html">마켓플레이스</a>
-    </li>
-    <li class="nav-item" id="navDashboardLink" style="display: none;">
-      <a class="nav-link" href="dashboard_company.html">기업 대시보드</a>
-    </li>
-  </ul>
-</div>
 
   <div class="auth-container">
     <h1>회원가입</h1>
