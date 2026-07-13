@@ -1,0 +1,212 @@
+/* HERMA-X Premium Design Stylesheet */
+
+/* 글로벌 변수 설정 */
+:root {
+  --primary-navy: #101f35;
+  --secondary-navy: #0a1322;
+  --gold-accent: #e5c07b;
+  --gold-border: #c5a880;
+  --light-bg: #f8f9fa;
+  --white: #ffffff;
+  
+  --grade-a: #198754;
+  --grade-b: #0d6efd;
+  --grade-c: #dc3545;
+  --risk-high: #dc3545;
+  --risk-medium: #fd7e14;
+  --risk-low: #198754;
+}
+
+/* 프리미엄 여권 스타일 컴포넌트 */
+.passport-container {
+  max-width: 800px;
+  margin: 0 auto;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 여권 커버 */
+.passport-cover-header {
+  background: radial-gradient(circle, var(--primary-navy) 0%, var(--secondary-navy) 100%);
+  color: var(--white);
+  padding: 40px 30px;
+  text-align: center;
+  position: relative;
+  border-bottom: 3px solid var(--gold-accent);
+}
+
+.passport-cover-header .badge-official {
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: var(--gold-accent);
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 15px;
+  display: inline-block;
+}
+
+.passport-cover-header .passport-logo {
+  max-width: 140px;
+  height: auto;
+  filter: drop-shadow(0px 4px 6px rgba(0, 0, 0, 0.3));
+  margin-bottom: 15px;
+}
+
+.passport-cover-header .brand {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--gold-accent);
+  font-family: 'Georgia', serif;
+}
+
+.passport-cover-header .title {
+  font-size: 14px;
+  letter-spacing: 3px;
+  margin-top: 15px;
+  opacity: 0.9;
+  border-top: 1px solid rgba(197, 168, 128, 0.25);
+  padding-top: 15px;
+}
+
+/* 여권 내지 스타일 */
+.passport-inner-body {
+  padding: 30px;
+  background-color: #fcfbfa; /* 미색 종이 느낌 */
+}
+
+/* 준비도 등급 배지 */
+.readiness-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 55px;
+  height: 55px;
+  border-radius: 50%;
+  font-size: 28px;
+  font-weight: 800;
+  color: white;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+.readiness-badge.grade-a { background-color: var(--grade-a); }
+.readiness-badge.grade-b { background-color: var(--grade-b); }
+.readiness-badge.grade-c { background-color: var(--grade-c); }
+
+.risk-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: bold;
+  color: white;
+}
+.risk-badge.risk-high { background-color: var(--risk-high); }
+.risk-badge.risk-medium { background-color: var(--risk-medium); }
+.risk-badge.risk-low { background-color: var(--risk-low); }
+
+/* 유리모프 필터 및 카드 */
+.glass-card {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.05);
+}
+
+/* 상품 여권 리스트 카드 (마켓플레이스용) */
+.market-passport-card {
+  border: none;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.06);
+  transition: transform 0.25s, box-shadow 0.25s;
+  background-color: var(--white);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.market-passport-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0,0,0,0.12);
+}
+
+.market-passport-card .card-cover {
+  background: radial-gradient(circle, var(--primary-navy) 0%, var(--secondary-navy) 100%);
+  padding: 25px 15px;
+  text-align: center;
+  color: var(--white);
+  border-bottom: 2px solid var(--gold-accent);
+}
+
+.market-passport-card .card-cover .logo-mini {
+  max-height: 40px;
+  margin-bottom: 8px;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.market-passport-card .card-cover .title-mini {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--gold-accent);
+  margin-top: 5px;
+}
+
+/* 발표자용 퀵 스위처 위젯 */
+.demo-switcher-widget {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 1050;
+  background: rgba(16, 31, 53, 0.95);
+  border: 1px solid var(--gold-border);
+  color: white;
+  padding: 15px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  font-size: 12px;
+  max-width: 250px;
+  backdrop-filter: blur(5px);
+}
+
+.demo-switcher-widget h6 {
+  color: var(--gold-accent);
+  font-weight: bold;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  font-size: 13px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.demo-switcher-widget button {
+  width: 100%;
+  font-size: 11px;
+  padding: 6px;
+  margin-top: 5px;
+  border-radius: 4px;
+}
+
+/* 대시보드 사이드바 반응형 조정 */
+@media (max-width: 767.98px) {
+  .sidebar {
+    min-height: auto;
+  }
+}
+
+/* 알림 애니메이션 */
+.badge-pulse {
+  animation: pulse-animation 1.5s infinite;
+}
+
+@keyframes pulse-animation {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
