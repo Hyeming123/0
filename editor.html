@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>디지털 상품 여권 발행기 - HERMA-X</title>
+  <!-- 부트스트랩 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- 프리미엄 커스텀 CSS -->
+  <link href="./static/css/custom.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4f6f9;
+    }
+
+    .navbar-logo {
+      max-height: 32px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .sidebar {
+      background-color: #101f35;
+      min-height: calc(100vh - 57px);
+      color: #fff;
+    }
+
+    .sidebar .nav-link {
+      color: #8fa0b7;
+      font-weight: 500;
+      padding: 15px 20px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .sidebar .nav-link.active {
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.1);
+      border-left: 4px solid #e5c07b;
+    }
+
+    .sidebar .nav-link:hover {
+      color: #fff;
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+
+    /* 여권 실시간 미리보기 스크롤 고정 */
+    .preview-sticky {
+      position: sticky;
+      top: 80px;
+    }
+
+    .doc-upload-item {
+      border: 1px dashed #ced4da;
+      border-radius: 8px;
+      padding: 15px;
+      background-color: #fff;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .doc-upload-item.uploaded {
+      border-color: #198754;
+      background-color: #f4fbf7;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 상단 내비게이션 바 -->
+  <nav class="navbar navbar-expand-lg bg-white border-bottom sticky-top">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="index.html">
+        <img src="./static/assets/logo_gold_stamped.png" alt="HERMA-X Logo" class="navbar-logo"
+          onerror="this.src='https://placehold.co/40x40/0d6efd/ffffff?text=H';">
+        <span>HERMA-X <span class="badge bg-secondary fs-6 ms-1" style="font-size: 11px !important;">B2B
+            Corporate</span></span>
+      </a>
+
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <span class="text-muted d-none d-md-inline" id="userEmailDisplay">loading...</span>
+        <span class="badge bg-warning text-dark fs-6" id="userCreditsDisplay"> 0 CR</span>
+        <button class="btn btn-sm btn-outline-danger" id="logoutBtn">로그아웃</button>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container-fluid">
+    <div class="row">
+      <!-- 왼쪽 사이드바 메뉴 -->
+      <nav class="col-md-3 col-lg-2 d-md-block sidebar collapse p-0">
+        <div class="position-sticky pt-3">
+          <ul class="nav flex-column">
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard_company.html">대시보드 홈</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="dashboard_company.html?tab=profile">기업 프로필 설정</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link active" href="#">새 상품 여권 발급</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="marketplace.html">마켓플레이스 가기</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <!-- 메인 대시보드 콘텐츠 영역 -->
+      <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+        <div
+          class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+          <h1 class="h2 fw-bold text-dark">디지털 무역 상품 여권(DPP) 생성기</h1>
+          <a href="dashboard_company.html" class="btn btn-sm btn-outline-secondary">← 대시보드로 돌아가기</a>
+        </div>
+
+        <div class="row g-4">
+          <!-- 1. 정보 입력 및 서류 업로드 영역 -->
+          <div class="col-12 col-lg-7">
+
+            <!-- 상품 기본 정보 카드 -->
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+              <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="card-title mb-0 fw-bold">1단계. 상품 기본 정보 입력</h5>
+              </div>
+              <div class="card-body p-4">
+                <form id="productBasicForm">
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <label for="productName" class="form-label fw-bold">상품명 *</label>
+                      <input type="text" class="form-control" id="productName"
+                        placeholder="예: 자동차용 철강 브라켓 (Steel Bracket)" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="hsCode" class="form-label fw-bold">HS코드 *</label>
+                      <input type="text" class="form-control" id="hsCode" placeholder="예: 8708.29" required>
+                    </div>
+                    <div class="col-md-6">
+                      <label for="origin" class="form-label fw-bold">원산지 *</label>
+                      <input type="text" class="form-control" id="origin" placeholder="예: 대한민국 (South Korea)" required>
+                    </div>
+                    <div class="col-12">
+                      <label for="exportCountries" class="form-label fw-bold">수출 가능 국가 *</label>
+                      <input type="text" class="form-control" id="exportCountries" placeholder="예: 독일, 미국, 프랑스 (쉼표 구분)"
+                        required>
+                    </div>
+                    <div class="col-12">
+                      <label for="description" class="form-label fw-bold">상품 상세 설명 *</label>
+                      <textarea class="form-control" id="description" rows="3"
+                        placeholder="상품의 재질, 성능, 치수 및 상세 스펙을 설명해주세요." required></textarea>
+                    </div>
+                    <div class="col-12">
+                      <label for="imageUrl" class="form-label fw-bold">상품 이미지 (URL/가상)</label>
+                      <input type="text" class="form-control" id="imageUrl" placeholder="공란일 시 기본 이미지가 배정됩니다.">
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <!-- 서류 업로드 카드 (5단계) -->
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+              <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="card-title mb-0 fw-bold">2단계. 통관 및 원산지 증빙 서류 업로드</h5>
+                <p class="text-muted small mb-0">서류를 업로드할 때마다 실시간으로 디지털 여권 데이터가 업데이트됩니다.</p>
+              </div>
+              <div class="card-body p-4">
+                <div class="d-flex flex-column gap-3">
+
+                  <!-- 1. 원산지증명서 -->
+                  <div class="doc-upload-item d-flex justify-content-between align-items-center"
+                    id="docItem-originCert">
+                    <div>
+                      <h6 class="fw-bold mb-1">원산지증명서 (C/O) *</h6>
+                      <span class="text-muted small file-status">업로드되지 않음</span>
+                    </div>
+                    <div>
+                      <input type="file" id="file-originCert" class="d-none" accept=".pdf,.png,.jpg">
+                      <button class="btn btn-sm btn-outline-primary"
+                        onclick="document.getElementById('file-originCert').click()">파일 선택</button>
+                    </div>
+                  </div>
+
+                  <!-- 2. 품질인증서 -->
+                  <div class="doc-upload-item d-flex justify-content-between align-items-center"
+                    id="docItem-qualityCert">
+                    <div>
+                      <h6 class="fw-bold mb-1">품질 인증서 (ISO9001 / IATF16949 등) *</h6>
+                      <span class="text-muted small file-status">업로드되지 않음</span>
+                    </div>
+                    <div>
+                      <input type="file" id="file-qualityCert" class="d-none" accept=".pdf,.png,.jpg">
+                      <button class="btn btn-sm btn-outline-primary"
+                        onclick="document.getElementById('file-qualityCert').click()">파일 선택</button>
+                    </div>
+                  </div>
+
+                  <!-- 3. 탄소자료 -->
+                  <div class="doc-upload-item d-flex justify-content-between align-items-center"
+                    id="docItem-carbonData">
+                    <div>
+                      <h6 class="fw-bold mb-1">탄소배출권 데이터 / CBAM 성적서</h6>
+                      <span class="text-muted small file-status">업로드되지 않음</span>
+                    </div>
+                    <div>
+                      <input type="file" id="file-carbonData" class="d-none" accept=".pdf,.png,.jpg">
+                      <button class="btn btn-sm btn-outline-primary"
+                        onclick="document.getElementById('file-carbonData').click()">파일 선택</button>
+                    </div>
+                  </div>
+
+                  <!-- 4. 시험성적서 -->
+                  <div class="doc-upload-item d-flex justify-content-between align-items-center"
+                    id="docItem-testReport">
+                    <div>
+                      <h6 class="fw-bold mb-1">제품 시험성적서 (Test Report)</h6>
+                      <span class="text-muted small file-status">업로드되지 않음</span>
+                    </div>
+                    <div>
+                      <input type="file" id="file-testReport" class="d-none" accept=".pdf,.png,.jpg">
+                      <button class="btn btn-sm btn-outline-primary"
+                        onclick="document.getElementById('file-testReport').click()">파일 선택</button>
+                    </div>
+                  </div>
+
+                  <!-- 5. 인보이스 / 패킹리스트 -->
+                  <div class="doc-upload-item d-flex justify-content-between align-items-center"
+                    id="docItem-invoicePacking">
+                    <div>
+                      <h6 class="fw-bold mb-1">상업송장 (Invoice) / 패킹리스트 (P/L)</h6>
+                      <span class="text-muted small file-status">업로드되지 않음</span>
+                    </div>
+                    <div>
+                      <input type="file" id="file-invoicePacking" class="d-none" accept=".pdf,.png,.jpg">
+                      <button class="btn btn-sm btn-outline-primary"
+                        onclick="document.getElementById('file-invoicePacking').click()">파일 선택</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- 3단계. 공개 범위 설정 (6단계) -->
+            <div class="card border-0 shadow-sm rounded-3 mb-4">
+              <div class="card-header bg-white py-3 border-bottom">
+                <h5 class="card-title mb-0 fw-bold">3단계. 여권 공개 범위 설정</h5>
+              </div>
+              <div class="card-body p-4">
+                <div class="mb-3">
+                  <label class="form-label d-block fw-bold">공개 레벨</label>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="securityLevel" id="sec-public" value="public"
+                      checked>
+                    <label class="form-check-label" for="sec-public">공개용 여권 (바이어 전면 열람)</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="securityLevel" id="sec-restricted"
+                      value="restricted">
+                    <label class="form-check-label" for="sec-restricted">제한 공개 여권 (바이어 요청 시 판매자 개별 승인)</label>
+                  </div>
+                  <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="radio" name="securityLevel" id="sec-private" value="private">
+                    <label class="form-check-label" for="sec-private">비공개 자료 (발행 이력만 보관)</label>
+                  </div>
+                </div>
+
+                <div class="row g-3">
+                  <div class="col-md-6">
+                    <label for="securityPeriod" class="form-label fw-bold">공개 유효 기간 설정</label>
+                    <input type="date" class="form-control" id="securityPeriod" value="2026-12-31">
+                  </div>
+                  <div class="col-md-6">
+                    <label class="form-label d-block fw-bold">바이어 다운로드 권한</label>
+                    <div class="form-check form-switch mt-2">
+                      <input class="form-check-input" type="checkbox" role="switch" id="allowDownload" checked>
+                      <label class="form-check-label" for="allowDownload">첨부 서류 다운로드 허용</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 2. 실시간 미리보기 및 AI 등급 진단 영역 -->
+          <div class="col-12 col-lg-5">
+            <div class="preview-sticky">
+
+              <!-- 실시간 여권 카드 프론트뷰 -->
+              <div class="card border-0 shadow-sm rounded-3 mb-4">
+                <div class="card-header bg-white py-3 border-bottom">
+                  <h5 class="card-title mb-0 fw-bold">실시간 디지털 여권 미리보기</h5>
+                </div>
+                <div class="card-body p-4 bg-light">
+
+                  <!-- 여권 프리미엄 커버 -->
+                  <div class="passport-container mb-3" style="max-width: 100%;">
+                    <div class="passport-cover-header">
+                      <span class="badge-official">Digital Trade Passport</span><br>
+                      <img src="./static/assets/logo_gold_stamped.png" alt="Logo" class="passport-logo"
+                        onerror="this.src='https://placehold.co/80x50/101f35/e5c07b?text=HERMA-X';"><br>
+                      <span class="brand" id="previewBrand">한빛정밀</span>
+                      <div class="title" id="previewProductName">상품명 미리보기</div>
+                    </div>
+                    <div class="passport-inner-body py-4 px-3" style="font-size: 13px;">
+                      <div class="row align-items-center">
+                        <div class="col-8">
+                          <div><b>HS Code:</b> <code id="previewHsCode">-</code></div>
+                          <div><b>원산지:</b> <span id="previewOrigin">-</span></div>
+                          <div><b>수출국가:</b> <span id="previewExport">-</span></div>
+                          <div class="mt-2 text-muted" id="previewDesc"
+                            style="font-size: 11px; height: 35px; overflow: hidden; text-overflow: ellipsis;">
+                            상품 기본 정보와 서류를 입력하면 여권 내지가 실시간으로 활성화됩니다.
+                          </div>
+                        </div>
+                        <div class="col-4 text-center">
+                          <div class="text-muted small fw-bold">수출준비도</div>
+                          <div class="readiness-badge grade-c mt-1" id="previewReadiness">C</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- AI 수출 준비도 점검 패널 (9단계, 11단계) -->
+              <div class="card border-0 shadow-sm rounded-3 mb-4 border-warning">
+                <div class="card-header bg-warning-subtle py-3 border-bottom border-warning">
+                  <h5 class="card-title mb-0 fw-bold text-dark">AI 수출 준비도 진단</h5>
+                </div>
+                <div class="card-body p-4">
+                  <div class="mb-3">
+                    <button type="button" class="btn btn-warning fw-bold w-100 py-2 shadow-sm text-dark"
+                      id="btnAIDiagnose">
+                      AI 수출 준비도 점검 실행 (크레딧 -5)
+                    </button>
+                    <small class="text-muted d-block text-center mt-2">필수 정보/원산지/탄소자료 누락 여부와 등급을 진단합니다.</small>
+                  </div>
+
+                  <div id="diagnoseResult" style="display: none;">
+                    <div class="border-top pt-3">
+                      <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="fw-bold">진단 등급:</span>
+                        <span class="badge bg-primary fs-6" id="diagnoseGrade">B 등급</span>
+                      </div>
+                      <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="fw-bold">수출 위험도:</span>
+                        <span class="risk-badge risk-medium" id="diagnoseRisk">중간 (Medium)</span>
+                      </div>
+
+                      <div class="mb-2">
+                        <label class="fw-bold text-secondary small">누락 서류 및 미비점:</label>
+                        <ul class="text-danger small ps-3 mb-0" id="diagnoseMissingList">
+                          <li>표시할 항목 없음</li>
+                        </ul>
+                      </div>
+
+                      <div class="alert alert-info p-2 rounded small mt-2 mb-0" style="font-size: 11px;">
+                        <b>AI 권장 조치:</b><br>
+                        <span id="diagnoseAdvice">안전한 유럽 수출을 위해 탄소자료를 추가 업로드하세요.</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 발행 실행 패널 (11단계) -->
+              <div class="card border-0 shadow-sm rounded-3">
+                <div class="card-body p-4">
+                  <button type="button" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm" id="btnPublishPassport">
+                    디지털 상품 여권 최종 발행 (크레딧 -10)
+                  </button>
+                  <small class="text-muted d-block text-center mt-2">여권 등록 시 크레딧 10 CR이 차감되며 마켓플레이스에 배포됩니다.</small>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <!-- 발표 시연용 계정 퀵 스위처 위젯 -->
+  <div id="demoSwitcherContainer"></div>
+
+  <!-- 부트스트랩 JS 로드 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import {
+      getCurrentUser,
+      logoutUser,
+      saveProduct,
+      calcExportReadiness,
+      deductCredits,
+      initDB
+    } from './static/js/db.js';
+    import { renderDemoSwitcher } from './static/js/switcher.js';
+
+    initDB();
+    renderDemoSwitcher();
+
+    let currentUser = null;
+
+    // 서류 업로드 가상 상태 보관 객체
+    const uploadedDocs = {
+      originCert: { uploaded: false, filename: '' },
+      qualityCert: { uploaded: false, filename: '' },
+      carbonData: { uploaded: false, filename: '' },
+      testReport: { uploaded: false, filename: '' },
+      invoicePacking: { uploaded: false, filename: '' }
+    };
+
+    // 권한 체크
+    function checkAuth() {
+      currentUser = getCurrentUser();
+      if (!currentUser) {
+        alert('로그인이 필요한 서비스입니다.');
+        window.location.href = 'login.html';
+        return;
+      }
+      if (currentUser.role !== 'company') {
+        alert('기업 전용 서비스입니다.');
+        window.location.href = 'index.html';
+        return;
+      }
+
+      document.getElementById('userEmailDisplay').textContent = `${currentUser.email}`;
+      document.getElementById('userCreditsDisplay').textContent = `${currentUser.credits} CR`;
+      document.getElementById('previewBrand').textContent = currentUser.companyName || '한빛정밀';
+    }
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      logoutUser();
+      window.location.href = 'login.html';
+    });
+
+    // 서류 파일 업로드 시뮬레이션 감지 및 상태 갱신
+    function setupFileUploads() {
+      const keys = ['originCert', 'qualityCert', 'carbonData', 'testReport', 'invoicePacking'];
+      keys.forEach(key => {
+        const fileInput = document.getElementById(`file-${key}`);
+        const uploadItem = document.getElementById(`docItem-${key}`);
+
+        fileInput.addEventListener('change', (e) => {
+          if (fileInput.files.length > 0) {
+            const filename = fileInput.files[0].name;
+            uploadedDocs[key] = { uploaded: true, filename: filename };
+
+            // UI 변경
+            uploadItem.classList.add('uploaded');
+            uploadItem.querySelector('.file-status').innerHTML = `업로드 완료: <span class="text-success fw-bold">${filename}</span>`;
+
+            // 실시간 여권 진단 갱신
+            updatePassportPreview();
+          }
+        });
+      });
+    }
+
+    // 실시간 입력 연동 미리보기 처리
+    function setupRealtimeBinding() {
+      const inputs = ['productName', 'hsCode', 'origin', 'exportCountries', 'description'];
+      inputs.forEach(id => {
+        document.getElementById(id).addEventListener('input', updatePassportPreview);
+      });
+    }
+
+    // 여권 데이터 임시 빌드 유틸
+    function buildProductData() {
+      return {
+        productName: document.getElementById('productName').value.trim(),
+        hsCode: document.getElementById('hsCode').value.trim(),
+        origin: document.getElementById('origin').value.trim(),
+        exportCountries: document.getElementById('exportCountries').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        imageUrl: document.getElementById('imageUrl').value.trim() || 'https://placehold.co/400x300/101f35/e5c07b?text=Steel+Bracket',
+        documents: { ...uploadedDocs },
+        securitySetting: {
+          level: document.querySelector('input[name="securityLevel"]:checked')?.value || 'public',
+          period: document.getElementById('securityPeriod').value,
+          allowDownload: document.getElementById('allowDownload').checked
+        }
+      };
+    }
+
+    // 실시간 여권 미리보기 업데이트
+    function updatePassportPreview() {
+      const data = buildProductData();
+
+      document.getElementById('previewProductName').textContent = data.productName || '상품명 미리보기';
+      document.getElementById('previewHsCode').textContent = data.hsCode || '-';
+      document.getElementById('previewOrigin').textContent = data.origin || '-';
+      document.getElementById('previewExport').textContent = data.exportCountries || '-';
+      document.getElementById('previewDesc').textContent = data.description || '상품 기본 정보와 서류를 입력하면 여권 내지가 실시간으로 활성화됩니다.';
+
+      // 가상으로 준비도 진단 등급을 실시간으로 가져옴 (단, 크레딧은 깎지 않고 겉보기 등급만 갱신)
+      const mockReadiness = calcExportReadiness(data);
+      const badgeEl = document.getElementById('previewReadiness');
+      badgeEl.textContent = mockReadiness.grade;
+
+      // 배지 컬러 갱신
+      badgeEl.className = 'readiness-badge mt-1';
+      if (mockReadiness.grade === 'A') badgeEl.classList.add('grade-a');
+      else if (mockReadiness.grade === 'B') badgeEl.classList.add('grade-b');
+      else badgeEl.classList.add('grade-c');
+    }
+
+    // AI 진단 실행 이벤트 (5 크레딧 차감)
+    document.getElementById('btnAIDiagnose').addEventListener('click', () => {
+      try {
+        const data = buildProductData();
+
+        // 크레딧 차감
+        deductCredits(currentUser.email, 5, 'AI 수출 준비도 진단 실행');
+        document.getElementById('userCreditsDisplay').textContent = getCurrentUser().credits + ' CR';
+
+        // 점검 등급 계산
+        const result = calcExportReadiness(data);
+
+        // UI 노출
+        document.getElementById('diagnoseResult').style.display = 'block';
+        const gradeEl = document.getElementById('diagnoseGrade');
+        gradeEl.textContent = `${result.grade} 등급`;
+        gradeEl.className = 'badge fs-6 ' + (result.grade === 'A' ? 'bg-success' : result.grade === 'B' ? 'bg-primary' : 'bg-danger');
+
+        const riskEl = document.getElementById('diagnoseRisk');
+        riskEl.textContent = `${result.risk}`;
+        riskEl.className = 'risk-badge ' + (result.grade === 'A' ? 'risk-low' : result.grade === 'B' ? 'risk-medium' : 'risk-high');
+
+        // 미비점 목록 작성
+        const missingList = document.getElementById('diagnoseMissingList');
+        missingList.innerHTML = '';
+
+        const allMissings = [...result.details.missingInfo, ...result.details.missingDocs];
+        if (allMissings.length === 0) {
+          missingList.innerHTML = '<li class="text-success fw-bold">✓ 누락 항목 없음 (수출 준비 완료)</li>';
+        } else {
+          allMissings.forEach(item => {
+            missingList.innerHTML += `<li>${item}</li>`;
+          });
+        }
+
+        // 조치 권장사항 매핑
+        const adviceEl = document.getElementById('diagnoseAdvice');
+        if (result.grade === 'A') {
+          adviceEl.textContent = '축하합니다! 수출 준비도가 완벽합니다. 마켓플레이스에 즉시 배포하여 바이어를 매칭해보세요.';
+        } else if (result.grade === 'B') {
+          adviceEl.textContent = '핵심 서류는 보유 중이나 일부 누락 자료가 감지되었습니다. ' + result.details.missingDocs.join(', ') + ' 상태를 보완하여 A등급을 획득하세요.';
+        } else {
+          adviceEl.textContent = '수출 요건 필수 서류(원산지증명서/품질인증서 등) 또는 핵심 정보가 누락되었습니다. 누락 목록을 확인하고 보완 후 재발행을 적극 권장합니다.';
+        }
+
+        alert('AI 수출 준비도 점검이 완료되었습니다. (크레딧 5 CR 차감)');
+      } catch (err) {
+        alert('진단 오류: ' + err.message);
+      }
+    });
+
+    // 디지털 여권 최종 발행 (10 크레딧 차감)
+    document.getElementById('btnPublishPassport').addEventListener('click', () => {
+      // 폼 체크
+      const productName = document.getElementById('productName').value.trim();
+      const hsCode = document.getElementById('hsCode').value.trim();
+      const origin = document.getElementById('origin').value.trim();
+      const exportCountries = document.getElementById('exportCountries').value.trim();
+      const description = document.getElementById('description').value.trim();
+
+      if (!productName || !hsCode || !origin || !exportCountries || !description) {
+        alert('필수(*) 정보를 먼저 모두 채워주세요.');
+        return;
+      }
+
+      try {
+        if (confirm('디지털 무역 상품 여권을 최종 발행하시겠습니까?\n발행 시 10 크레딧이 차감됩니다.')) {
+          // 크레딧 차감
+          deductCredits(currentUser.email, 10, `디지털 상품 여권 발행 - ${productName}`);
+
+          // 데이터 저장
+          const data = buildProductData();
+          saveProduct(data, currentUser.email);
+
+          alert(`[${productName}] 상품 여권이 성공적으로 발행되어 마켓플레이스에 배포되었습니다! (크레딧 10 CR 차감)`);
+          window.location.href = 'dashboard_company.html';
+        }
+      } catch (err) {
+        alert('발행 오류: ' + err.message);
+      }
+    });
+
+    // 초기화
+    window.addEventListener('load', () => {
+      checkAuth();
+      setupFileUploads();
+      setupRealtimeBinding();
+      updatePassportPreview();
+    });
+  </script>
+</body>
+
+</html>

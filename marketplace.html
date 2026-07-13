@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>디지털 상품 여권 마켓플레이스 - HERMA-X</title>
+  <!-- 부트스트랩 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- 프리미엄 커스텀 CSS -->
+  <link href="./static/css/custom.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4f6f9;
+    }
+
+    .navbar-logo {
+      max-height: 32px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .filter-panel {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 상단 내비게이션 바 -->
+  <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="index.html">
+        <img src="./static/assets/logo_gold_stamped.png" alt="HERMA-X Logo" class="navbar-logo"
+          onerror="this.src='https://placehold.co/40x40/0d6efd/ffffff?text=H';">
+        <span>HERMA-X</span>
+      </a>
+
+      <!-- 우측 상단 로그인 영역 -->
+      <div class="d-flex align-items-center ms-auto gap-2" id="navAuthArea">
+        <a class="btn btn-sm btn-outline-primary" href="login.html">로그인</a>
+        <a class="btn btn-sm btn-primary" href="signup.html">회원가입</a>
+      </div>
+
+      <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+        aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">메인</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="marketplace.html">마켓플레이스</a>
+          </li>
+          <li class="nav-item" id="navDashboardLink" style="display: none;">
+            <a class="nav-link" href="dashboard_company.html">기업 대시보드</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 마켓플레이스 본문 -->
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h1 class="fw-bold text-dark mb-2">디지털 무역 상품 여권 마켓플레이스</h1>
+      <p class="text-muted">글로벌 완성차 및 바이어를 위한 검증된 상품 여권(DPP) 리스팅 플랫폼</p>
+    </div>
+
+    <div class="row g-4">
+      <!-- 왼쪽: 필터 및 검색 패널 (7단계) -->
+      <div class="col-12 col-lg-3">
+        <div class="filter-panel">
+          <h5 class="fw-bold mb-3">상세 검색 필터</h5>
+
+          <!-- 품목/HS코드 검색 -->
+          <div class="mb-3">
+            <label for="searchKeyword" class="form-label small fw-bold text-secondary">품목명 / HS코드</label>
+            <input type="text" class="form-control form-control-sm" id="searchKeyword" placeholder="예: 브라켓, 8708">
+          </div>
+
+          <!-- 국가 검색 -->
+          <div class="mb-3">
+            <label for="searchCountry" class="form-label small fw-bold text-secondary">수출 가능 국가</label>
+            <input type="text" class="form-control form-control-sm" id="searchCountry" placeholder="예: 독일, 미국">
+          </div>
+
+          <!-- 서류 및 인증 보유 필터 -->
+          <div class="mb-3 border-top pt-3">
+            <label class="form-label small fw-bold text-secondary d-block">서류/인증 보유 여부</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="filterQualityCert">
+              <label class="form-check-label small" for="filterQualityCert">
+                품질인증서 (ISO9001 등)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="filterCarbonData">
+              <label class="form-check-label small" for="filterCarbonData">
+                탄소배출 데이터 (CBAM)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="filterOriginCert">
+              <label class="form-check-label small" for="filterOriginCert">
+                원산지증명서 (C/O)
+              </label>
+            </div>
+          </div>
+
+          <!-- 수출 준비도 등급 필터 -->
+          <div class="mb-4 border-top pt-3">
+            <label class="form-label small fw-bold text-secondary d-block">수출 준비도 등급</label>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" class="filter-grade" id="grade-A" value="A">
+              <label class="form-check-label small" for="grade-A">
+                <span class="badge bg-success me-1">A</span> 최우수 준비도
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" class="filter-grade" id="grade-B" value="B">
+              <label class="form-check-label small" for="grade-B">
+                <span class="badge bg-primary me-1">B</span> 양호 (일부 보완 필요)
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" class="filter-grade" id="grade-C" value="C">
+              <label class="form-check-label small" for="grade-C">
+                <span class="badge bg-danger me-1">C</span> 미흡 (주의 필요)
+              </label>
+            </div>
+          </div>
+
+          <button class="btn btn-primary btn-sm w-100 fw-bold py-2" id="btnResetFilters">필터 조건 초기화</button>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 상품 여권 리스트 그리드 (7단계) -->
+      <div class="col-12 col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <div class="text-muted small"><span id="productResultCount" class="fw-bold text-primary">0</span>개의 검색 결과가
+            있습니다.</div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4" id="marketplaceGrid">
+          <!-- 동적으로 바인딩 될 영역 -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 발표 시연용 계정 퀵 스위처 위젯 -->
+  <div id="demoSwitcherContainer"></div>
+
+  <!-- 부트스트랩 JS 로드 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import { initDB, getCurrentUser, logoutUser, getProducts } from './static/js/db.js';
+    import { renderDemoSwitcher } from './static/js/switcher.js';
+
+    initDB();
+    renderDemoSwitcher();
+
+    let currentUser = null;
+
+    // 권한 체크 및 UI 로딩
+    function checkAuth() {
+      currentUser = getCurrentUser();
+      const authArea = document.getElementById('navAuthArea');
+      const dashboardLink = document.getElementById('navDashboardLink');
+
+      if (currentUser) {
+        if (currentUser.role === 'company') {
+          dashboardLink.style.display = 'block';
+        }
+
+        const roleStr = currentUser.role === 'company' ? '기업' : '바이어';
+        authArea.innerHTML = `
+        <span class="text-dark fw-bold me-2" style="font-size: 14px;">${roleStr} [${currentUser.companyName || currentUser.email}]</span>
+        <button class="btn btn-sm btn-outline-danger" id="navLogoutBtn">로그아웃</button>
+      `;
+
+        document.getElementById('navLogoutBtn').addEventListener('click', () => {
+          logoutUser();
+          window.location.reload();
+        });
+      }
+    }
+
+    // 필터 필터링 비즈니스 로직
+    function applyFilters() {
+      const products = getProducts();
+
+      // 비공개(private) 제품 제외, 공개(public) & 제한 공개(restricted) 제품만 리스팅
+      let filtered = products.filter(p => p.securitySetting.level !== 'private');
+
+      // 키워드 검색
+      const keyword = document.getElementById('searchKeyword').value.trim().toLowerCase();
+      if (keyword) {
+        filtered = filtered.filter(p =>
+          p.productName.toLowerCase().includes(keyword) ||
+          p.hsCode.toLowerCase().includes(keyword)
+        );
+      }
+
+      // 국가 검색
+      const country = document.getElementById('searchCountry').value.trim().toLowerCase();
+      if (country) {
+        filtered = filtered.filter(p =>
+          p.exportCountries.toLowerCase().includes(country)
+        );
+      }
+
+      // 품질인증서 필터 (uploaded 여부)
+      if (document.getElementById('filterQualityCert').checked) {
+        filtered = filtered.filter(p => p.documents?.qualityCert?.uploaded);
+      }
+
+      // 탄소자료 필터
+      if (document.getElementById('filterCarbonData').checked) {
+        filtered = filtered.filter(p => p.documents?.carbonData?.uploaded);
+      }
+
+      // 원산지증명서 필터
+      if (document.getElementById('filterOriginCert').checked) {
+        filtered = filtered.filter(p => p.documents?.originCert?.uploaded);
+      }
+
+      // 등급 필터 (A, B, C 다중 체크박스 수집)
+      const gradeFilters = [];
+      if (document.getElementById('grade-A').checked) gradeFilters.push('A');
+      if (document.getElementById('grade-B').checked) gradeFilters.push('B');
+      if (document.getElementById('grade-C').checked) gradeFilters.push('C');
+
+      if (gradeFilters.length > 0) {
+        filtered = filtered.filter(p => gradeFilters.includes(p.readiness.grade));
+      }
+
+      // 결과 렌더링
+      renderMarketplace(filtered);
+    }
+
+    // 마켓플레이스 그리드 렌더링
+    function renderMarketplace(productList) {
+      const grid = document.getElementById('marketplaceGrid');
+      document.getElementById('productResultCount').textContent = productList.length;
+
+      if (productList.length === 0) {
+        grid.innerHTML = `
+        <div class="col-12 w-100 text-center py-5">
+          <p class="text-muted fs-5">조건에 부합하는 디지털 상품 여권이 없습니다.</p>
+        </div>
+      `;
+        return;
+      }
+
+      grid.innerHTML = productList.map(p => {
+        let gradeBadgeClass = 'bg-primary';
+        if (p.readiness.grade === 'A') gradeBadgeClass = 'bg-success';
+        if (p.readiness.grade === 'C') gradeBadgeClass = 'bg-danger';
+
+        let secBadge = p.securitySetting.level === 'restricted'
+          ? `<span class="badge bg-warning text-dark">제한 공개</span>`
+          : `<span class="badge bg-success">전면 공개</span>`;
+
+        return `
+        <div class="col">
+          <div class="card market-passport-card" onclick="location.href='product_detail.html?id=${p.id}'" style="cursor: pointer;">
+            <div class="card-cover">
+              <img src="./static/assets/logo_gold_stamped.png" alt="Logo" class="logo-mini" onerror="this.src='https://placehold.co/40x25/101f35/e5c07b?text=H';"><br>
+              <span class="title-mini">DIGITAL PASSPORT</span>
+              <h5 class="fw-bold mt-2 text-white" style="font-size: 16px;">${p.productName}</h5>
+            </div>
+            <div class="card-body p-3 flex-grow-1 d-flex flex-column justify-content-between">
+              <div>
+                <div class="d-flex justify-content-between mb-2">
+                  <span class="text-muted small">HS Code: <b>${p.hsCode}</b></span>
+                  ${secBadge}
+                </div>
+                <div class="small text-secondary mb-1"><b>원산지:</b> ${p.origin}</div>
+                <div class="small text-secondary mb-1"><b>대상국가:</b> ${p.exportCountries}</div>
+                <div class="small text-secondary mb-2 text-truncate" style="max-width: 100%;">
+                  ${p.description}
+                </div>
+              </div>
+              <div class="border-top pt-2 mt-2 d-flex justify-content-between align-items-center">
+                <span class="text-muted small" style="font-size: 11px;">수출 준비도</span>
+                <span class="badge ${gradeBadgeClass} fs-6">${p.readiness.grade} 등급</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+      }).join('');
+    }
+
+    // 필터 제어 연결
+    function setupFilterEvents() {
+      const filters = ['searchKeyword', 'searchCountry', 'filterQualityCert', 'filterCarbonData', 'filterOriginCert', 'grade-A', 'grade-B', 'grade-C'];
+      filters.forEach(id => {
+        document.getElementById(id).addEventListener('input', applyFilters);
+      });
+
+      document.getElementById('btnResetFilters').addEventListener('click', () => {
+        document.getElementById('searchKeyword').value = '';
+        document.getElementById('searchCountry').value = '';
+        document.getElementById('filterQualityCert').checked = false;
+        document.getElementById('filterCarbonData').checked = false;
+        document.getElementById('filterOriginCert').checked = false;
+        document.getElementById('grade-A').checked = false;
+        document.getElementById('grade-B').checked = false;
+        document.getElementById('grade-C').checked = false;
+        applyFilters();
+      });
+    }
+
+    window.addEventListener('load', () => {
+      checkAuth();
+      setupFilterEvents();
+      applyFilters(); // 최초 로딩 렌더링
+    });
+  </script>
+</body>
+
+</html>

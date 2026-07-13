@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>디지털 상품 여권 상세 - HERMA-X</title>
+  <!-- 부트스트랩 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- 프리미엄 커스텀 CSS -->
+  <link href="./static/css/custom.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f4f6f9;
+    }
+
+    .navbar-logo {
+      max-height: 32px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .doc-card-status {
+      border-radius: 8px;
+      background-color: #fff;
+      border: 1px solid #e9ecef;
+      padding: 15px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 상단 내비게이션 바 -->
+  <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="index.html">
+        <img src="./static/assets/logo_gold_stamped.png" alt="HERMA-X Logo" class="navbar-logo"
+          onerror="this.src='https://placehold.co/40x40/0d6efd/ffffff?text=H';">
+        <span>HERMA-X</span>
+      </a>
+
+      <!-- 우측 상단 로그인 영역 -->
+      <div class="d-flex align-items-center ms-auto gap-2" id="navAuthArea">
+        <a class="btn btn-sm btn-outline-primary" href="login.html">로그인</a>
+        <a class="btn btn-sm btn-primary" href="signup.html">회원가입</a>
+      </div>
+
+      <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+        aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">메인</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="marketplace.html">마켓플레이스</a>
+          </li>
+          <li class="nav-item" id="navDashboardLink" style="display: none;">
+            <a class="nav-link" href="dashboard_company.html">기업 대시보드</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <div class="container py-5">
+    <div class="mb-4">
+      <a href="marketplace.html" class="btn btn-sm btn-outline-secondary">← 마켓플레이스로 목록 돌아가기</a>
+    </div>
+
+    <div class="row g-4" id="detailContainer">
+      <!-- 동적으로 상품 정보가 들어갈 영역 -->
+      <div class="col-12 text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="mt-2 text-muted">디지털 상품 여권을 안전하게 로딩 중입니다...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 발표 시연용 계정 퀵 스위처 위젯 -->
+  <div id="demoSwitcherContainer"></div>
+
+  <!-- 부트스트랩 JS 로드 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script type="module">
+    import {
+      initDB,
+      getCurrentUser,
+      logoutUser,
+      getProduct,
+      sendInquiry,
+      getInquiriesForCompany,
+      addAuditLog
+    } from './static/js/db.js';
+    import { renderDemoSwitcher } from './static/js/switcher.js';
+
+    initDB();
+    renderDemoSwitcher();
+
+    let currentUser = null;
+    let currentProduct = null;
+
+    // 권한 체크
+    function checkAuth() {
+      currentUser = getCurrentUser();
+      const authArea = document.getElementById('navAuthArea');
+      const dashboardLink = document.getElementById('navDashboardLink');
+
+      if (currentUser) {
+        if (currentUser.role === 'company') {
+          dashboardLink.style.display = 'block';
+        }
+
+        const roleStr = currentUser.role === 'company' ? '기업' : '바이어';
+        authArea.innerHTML = `
+        <span class="text-dark fw-bold me-2" style="font-size: 14px;">${roleStr} [${currentUser.companyName || currentUser.email}]</span>
+        <button class="btn btn-sm btn-outline-danger" id="navLogoutBtn">로그아웃</button>
+      `;
+
+        document.getElementById('navLogoutBtn').addEventListener('click', () => {
+          logoutUser();
+          window.location.reload();
+        });
+      }
+    }
+
+    // URL에서 상품 ID 취득
+    function getProductIdFromUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+
+    // 상세 데이터 렌더링
+    function renderDetail() {
+      const prodId = getProductIdFromUrl();
+      if (!prodId) {
+        document.getElementById('detailContainer').innerHTML = `
+        <div class="col-12 text-center py-5">
+          <div class="alert alert-danger">잘못된 접근입니다. 상품 ID가 지정되지 않았습니다.</div>
+        </div>
+      `;
+        return;
+      }
+
+      currentProduct = getProduct(prodId);
+      if (!currentProduct) {
+        document.getElementById('detailContainer').innerHTML = `
+        <div class="col-12 text-center py-5">
+          <div class="alert alert-danger">해당 상품 여권을 찾을 수 없습니다.</div>
+        </div>
+      `;
+        return;
+      }
+
+      // 바이어 여권 열람 로그 기록 (10단계 바이어 열람 기록)
+      if (currentUser && currentUser.role === 'buyer' && currentUser.email !== currentProduct.ownerEmail) {
+        addAuditLog(currentProduct.ownerEmail, '바이어 여권 열람', `바이어 [${currentUser.email}]가 [${currentProduct.productName}]의 상품 여권을 열람했습니다.`);
+      }
+
+      // 바이어 열람에 따른 승인 권한 상태 여부 체크
+      // 바이어 이메일을 통해 이미 판매자가 승인해 줬는지 확인
+      const isOwner = currentUser ? currentUser.email === currentProduct.ownerEmail : false;
+      let accessApproved = false;
+      let approvedRequestedDocs = [];
+      if (currentUser) {
+        // 본인 상품인 경우 무조건 열람 가능
+        if (currentUser.email === currentProduct.ownerEmail) {
+          accessApproved = true;
+        } else {
+          // 이미 승인받았는지 inquiry 상태 검사
+          const allInquiries = JSON.parse(localStorage.getItem('HERMAX_INQUIRIES') || '[]');
+          const matchingApprovedInq = allInquiries.find(inq =>
+            inq.productId === currentProduct.id &&
+            inq.buyerEmail === currentUser.email &&
+            inq.status === 'approved'
+          );
+          if (matchingApprovedInq) {
+            accessApproved = true;
+            // 바이어가 요청한 서류 목록 보존
+            approvedRequestedDocs = matchingApprovedInq.requestedDocs || [];
+          }
+        }
+      }
+
+      const docs = currentProduct.documents || {};
+      const security = currentProduct.securitySetting || {};
+
+      let gradeBadgeClass = 'bg-primary';
+      if (currentProduct.readiness.grade === 'A') gradeBadgeClass = 'bg-success';
+      if (currentProduct.readiness.grade === 'C') gradeBadgeClass = 'bg-danger';
+
+      // 1단계. 여권 앞표지 및 기본 정보 렌더링
+      const detailContainer = document.getElementById('detailContainer');
+      detailContainer.innerHTML = `
+      <!-- 왼쪽: 여권 카드 커버 및 상세 내지 -->
+      <div class="col-12 col-lg-7">
+        <div class="passport-container mb-4">
+          <div class="passport-cover-header">
+            <span class="badge-official">Digital Trade Passport</span><br>
+            <img src="./static/assets/logo_gold_stamped.png" alt="Logo" class="passport-logo" onerror="this.src='https://placehold.co/80x50/101f35/e5c07b?text=HERMA-X';"><br>
+            <span class="brand" style="font-size: 22px;">HERMA-X OFFICIAL</span>
+            <div class="title" style="font-size: 20px; font-weight: bold; border-top: none; padding-top: 5px;">${currentProduct.productName}</div>
+          </div>
+          <div class="passport-inner-body">
+            <div class="row align-items-center mb-4">
+              <div class="col-8">
+                <div class="fs-6 mb-1"><b>HS Code:</b> <code>${currentProduct.hsCode}</code></div>
+                <div class="fs-6 mb-1"><b>원산지:</b> ${currentProduct.origin}</div>
+                <div class="fs-6 mb-1"><b>수출 가능 국가:</b> ${currentProduct.exportCountries}</div>
+              </div>
+              <div class="col-4 text-center">
+                <div class="text-muted small fw-bold">수출 준비도</div>
+                <div class="readiness-badge ${gradeBadgeClass} mt-1">${currentProduct.readiness.grade}</div>
+                <div class="small mt-1 text-muted">위험도: <b>${currentProduct.readiness.risk}</b></div>
+              </div>
+            </div>
+            <div class="border-top pt-3">
+              <h6 class="fw-bold text-dark">상품 설명</h6>
+              <p class="text-secondary small" style="line-height: 1.6; white-space: pre-wrap;">${currentProduct.description}</p>
+            </div>
+            <div class="border-top pt-3 mt-3">
+              <h6 class="fw-bold text-dark">제조 및 수출 기업 정보</h6>
+              <div class="bg-light p-3 rounded" style="font-size: 13px;">
+                <div class="mb-1"><b>회사명:</b> 한빛정밀</div>
+                <div class="mb-1"><b>주요 인증:</b> <span class="badge bg-secondary">ISO9001</span> <span class="badge bg-secondary">IATF16949</span></div>
+                <p class="text-muted mb-0 mt-2" style="font-size: 11px;">"한빛정밀은 20년 경력의 자동차 정밀 부품 전문 제조 기업입니다. 글로벌 완성차 공급망에 신뢰도 높은 브라켓류를 공급하고 있습니다."</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 서류 확인 및 바이어 문의 패널 -->
+      <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm rounded-3 mb-4">
+          <div class="card-header bg-white py-3 border-bottom">
+            <h5 class="card-title mb-0 fw-bold">디지털 상품 여권 증빙 서류 상태</h5>
+            <p class="text-muted small mb-0">인증서의 실시간 위변조 및 구비 상태를 나타냅니다.</p>
+          </div>
+          <div class="card-body p-4 bg-light">
+            <!-- 각 서류 리스트업 -->
+            ${renderDocumentItem('원산지증명서 (C/O)', docs.originCert, security, accessApproved, isOwner, approvedRequestedDocs)}
+            ${renderDocumentItem('품질 인증서 (ISO9001)', docs.qualityCert, security, accessApproved, isOwner, approvedRequestedDocs)}
+            ${renderDocumentItem('탄소 배출량 CBAM 자료', docs.carbonData, security, accessApproved, isOwner, approvedRequestedDocs)}
+            ${renderDocumentItem('시험성적서 (Test Report)', docs.testReport, security, accessApproved, isOwner, approvedRequestedDocs)}
+            ${renderDocumentItem('송장/패킹리스트 (Invoice/Packing)', docs.invoicePacking, security, accessApproved, isOwner, approvedRequestedDocs)}
+          </div>
+        </div>
+
+        <!-- 바이어 문의 폼 (8단계) -->
+        <div id="buyerInquiryCard"></div>
+      </div>
+    `;
+
+      // 바이어 문의 폼 렌더링
+      renderInquiryForm(accessApproved);
+    }
+
+    // 개별 서류 아이템 렌더링 헬퍼
+    // 바이어에게는 승인 없으면 무조건 잠금, 주인 및 승인된 바이어는 요청한 서류만 다운로드 가능
+    function renderDocumentItem(title, doc, security, accessApproved, isOwner, requestedDocs) {
+      const isUploaded = doc && doc.uploaded;
+
+      let statusBadge = '';
+      let actionBtn = '';
+
+      if (!isUploaded) {
+        statusBadge = `<span class="badge bg-secondary">준비 중 (미비)</span>`;
+        actionBtn = `<button class="btn btn-sm btn-outline-secondary" disabled>다운로드 불가</button>`;
+      } else {
+        statusBadge = `<span class="badge bg-success">구비 완료</span>`;
+
+        if (isOwner) {
+          // 기업 소유자: 무조건 열람 가능
+          actionBtn = `<button class="btn btn-sm btn-primary" onclick="alert('다운로드 실행: ${doc.filename}')">다운로드</button>`;
+        } else if (accessApproved) {
+          // 바이어: 문의 후 승인된 경우 — 요청한 서류만 다운로드 가능
+          const wasRequested = requestedDocs && requestedDocs.includes(title.split(' (')[0]);
+          if (wasRequested) {
+            actionBtn = `<button class="btn btn-sm btn-success" onclick="window.handleDocumentDownload('${doc.filename}', '${title}')">다운로드 (승인됨)</button>`;
+          } else {
+            actionBtn = `<button class="btn btn-sm btn-outline-secondary" style="font-size: 11px;" disabled title="해당 서류는 요청하지 않았습니다.">미요청 서류</button>`;
+          }
+        } else {
+          // 바이어: 미승인 → 보안 레벨 무관하게 무조건 잠금
+          actionBtn = `<button class="btn btn-sm btn-warning text-dark" style="font-size: 11px;" disabled title="문의 발송 후 기업 승인이 필요합니다.">잠김 — 승인 필요</button>`;
+        }
+      }
+
+      return `
+      <div class="doc-card-status d-flex justify-content-between align-items-center">
+        <div>
+          <h6 class="fw-bold mb-1" style="font-size: 13px;">${title}</h6>
+          <div class="small text-muted" style="font-size: 11px;">${isUploaded ? doc.filename : '제출 자료 누락'}</div>
+        </div>
+        <div class="text-end">
+          <div class="mb-1">${statusBadge}</div>
+          <div>${actionBtn}</div>
+        </div>
+      </div>
+    `;
+    }
+
+    // 바이어 문의 및 추가 서류 요청 폼 렌더링 (8단계)
+    function renderInquiryForm(accessApproved) {
+      const container = document.getElementById('buyerInquiryCard');
+      if (!container) return;
+
+      if (!currentUser) {
+        container.innerHTML = `
+        <div class="card border-0 shadow-sm rounded-3">
+          <div class="card-body p-4 text-center">
+            <h5 class="fw-bold">바이어 거래 문의</h5>
+            <p class="text-muted small">바이어 계정으로 로그인하시면 거래 제안 및 서류 열람 권한 요청을 보낼 수 있습니다.</p>
+            <a href="login.html" class="btn btn-primary btn-sm">로그인하러 가기</a>
+          </div>
+        </div>
+      `;
+        return;
+      }
+
+      if (currentUser.email === currentProduct.ownerEmail) {
+        container.innerHTML = `
+        <div class="card border-0 shadow-sm rounded-3 bg-light">
+          <div class="card-body p-4 text-center">
+            <h6 class="fw-bold">귀사의 상품 여권입니다.</h6>
+            <p class="text-muted small mb-0">마켓플레이스에 정상 배포되어 바이어 열람이 가능합니다.</p>
+          </div>
+        </div>
+      `;
+        return;
+      }
+
+      // 일반 바이어인 경우 폼 노출
+      const docs = currentProduct.documents || {};
+      const restrictedDocs = [];
+      if (docs.originCert?.uploaded) restrictedDocs.push('원산지증명서');
+      if (docs.qualityCert?.uploaded) restrictedDocs.push('품질 인증서');
+      if (docs.carbonData?.uploaded) restrictedDocs.push('탄소 배출량 자료');
+      if (docs.testReport?.uploaded) restrictedDocs.push('제품 시험성적서');
+      if (docs.invoicePacking?.uploaded) restrictedDocs.push('인보이스/패킹리스트');
+
+      let checkboxHTML = '';
+      if (restrictedDocs.length > 0 && !accessApproved) {
+        checkboxHTML = `
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-secondary">서류 열람 권한을 요청할 항목 선택</label>
+          <div class="d-flex flex-wrap gap-2">
+            ${restrictedDocs.map(docName => `
+              <div class="form-check bg-white p-2 px-3 border rounded">
+                <input class="form-check-input" type="checkbox" name="requestDocItem" id="chk-${docName}" value="${docName}">
+                <label class="form-check-label small" for="chk-${docName}">${docName}</label>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+      }
+
+      container.innerHTML = `
+      <div class="card border-0 shadow-sm rounded-3">
+        <div class="card-header bg-white py-3 border-bottom">
+          <h5 class="card-title mb-0 fw-bold">서류 열람 요청 및 거래 문의</h5>
+        </div>
+        <div class="card-body p-4">
+          ${accessApproved
+            ? `<div class="alert alert-success py-2 mb-3 small"><b>서류 열람이 승인된 계정입니다.</b> 위 서류 패널에서 다운로드하세요.</div>`
+            : `<div class="alert alert-info py-2 mb-3 small">서류 열람을 원하시면 아래 양식을 작성하여 기업에 요청하세요.</div>`
+          }
+          <form id="inquiryForm">
+            <div class="mb-3">
+              <label for="buyerEmailInput" class="form-label fw-bold small text-secondary">바이어 계정 (이메일)</label>
+              <input type="text" class="form-control form-control-sm" id="buyerEmailInput" value="${currentUser.email}" readonly>
+            </div>
+            
+            ${checkboxHTML}
+
+            <div class="mb-3">
+              <label for="inquiryMessage" class="form-label fw-bold small text-secondary">문의 및 요청 사항</label>
+              <textarea class="form-control form-control-sm" id="inquiryMessage" rows="4" placeholder="예: 유럽 수출 건 관련 견적서와 품질성적서 추가 요청을 드립니다." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 fw-bold" id="btnSendInquiry" ${accessApproved && currentProduct.securitySetting.level === 'public' ? '' : ''}>
+              거래 문의 및 서류 권한 요청 발송
+            </button>
+          </form>
+        </div>
+      </div>
+    `;
+
+      // 문의 제출 바인딩
+      document.getElementById('inquiryForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        const message = document.getElementById('inquiryMessage').value.trim();
+        const requestedDocs = [];
+        document.querySelectorAll('input[name="requestDocItem"]:checked').forEach(chk => {
+          requestedDocs.push(chk.value);
+        });
+
+        const inquiryData = {
+          productId: currentProduct.id,
+          buyerEmail: currentUser.email,
+          message,
+          requestedDocs
+        };
+
+        try {
+          sendInquiry(inquiryData);
+          alert('문의가 수출 기업에게 성공적으로 전송되었습니다!\n기업에서 승인 시 알림이 오며 비공개 서류가 활성화됩니다.');
+          window.location.reload();
+        } catch (err) {
+          alert('문의 발송 실패: ' + err.message);
+        }
+      });
+    }
+
+    // 바이어 서류 다운로드 핸들러 (열람 로그 기록 포함)
+    window.handleDocumentDownload = function(filename, docTitle) {
+      if (currentUser && currentProduct) {
+        addAuditLog(
+          currentProduct.ownerEmail,
+          '바이어 서류 다운로드',
+          `바이어 [${currentUser.email}]가 [${currentProduct.productName}]의 서류 [${docTitle}]를 열람했습니다.`
+        );
+      }
+      alert('다운로드 실행: ' + filename);
+    };
+
+    window.addEventListener('load', () => {
+      checkAuth();
+      renderDetail();
+    });
+  </script>
+</body>
+
+</html>

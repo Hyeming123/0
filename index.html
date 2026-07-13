@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HERMA-X - 글로벌 무역 상품 여권 솔루션</title>
+  <!-- 부트스트랩 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <!-- 프리미엄 커스텀 CSS -->
+  <link href="./static/css/custom.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    /* 내비게이션 바 로고 전용 스타일 */
+    .navbar-logo {
+      max-height: 32px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    /* 메인 섹션 레이아웃 */
+    .main-wrapper {
+      padding: 80px 0;
+    }
+
+    .intro-text h2 {
+      color: #212529;
+      font-weight: 700;
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+
+    .intro-text p {
+      color: #6c757d;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+
+    /* 파이썬 index.py에서 지정한 dark_navy_passport 여권 커버 테마 */
+    .passport-cover {
+      max-width: 420px;
+      margin: 0 auto;
+      padding: 50px 30px;
+      background: radial-gradient(circle, #101f35 0%, #0a1322 100%);
+      /* 고급스러운 딥 네이비 */
+      border: 2px solid #c5a880;
+      /* 은은한 골드 테두리 */
+      border-radius: 12px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+      text-align: center;
+      color: #ffffff;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* 마우스 오버 시 바이어에게 어필할 수 있는 가벼운 모션 효과 */
+    .passport-cover:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.35);
+    }
+
+    .passport-badge {
+      font-size: 11px;
+      letter-spacing: 4px;
+      color: #c5a880;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+      font-weight: 600;
+    }
+
+    .logo-area {
+      margin: 35px 0;
+    }
+
+    /* 생성된 헤르메스의 날개 로고 이미지 스타일 */
+    .logo-image {
+      max-width: 180px;
+      height: auto;
+      filter: drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.5));
+      margin-bottom: 15px;
+    }
+
+    .brand-name {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: #e5c07b;
+      /* 금박(Gold Stamped) 느낌의 색상 */
+      font-family: 'Georgia', serif;
+    }
+
+    .passport-title {
+      font-size: 15px;
+      letter-spacing: 4px;
+      color: #ffffff;
+      margin-top: 35px;
+      font-weight: 500;
+      border-top: 1px solid rgba(197, 168, 128, 0.25);
+      padding-top: 20px;
+    }
+
+    .passport-subtitle {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #8fa0b7;
+      margin-top: 5px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- 상단 내비게이션 바 -->
+  <nav class="navbar navbar-expand-lg bg-body-tertiary border-bottom">
+    <div class="container-fluid">
+      <a class="navbar-brand fw-bold text-primary d-flex align-items-center gap-2" href="index.html">
+        <img src="./static/assets/logo_gold_stamped.png" alt="HERMA-X Logo" class="navbar-logo"
+          onerror="this.src='https://placehold.co/40x40/0d6efd/ffffff?text=H';">
+        <span>HERMA-X</span>
+      </a>
+
+      <!-- 우측 상단 버튼 세트: 로그인 및 회원가입 구분 분기 (JS로 동적 렌더링) -->
+      <div class="d-flex align-items-center ms-auto gap-2" id="navAuthArea">
+        <a class="btn btn-sm btn-outline-primary" href="login.html">로그인</a>
+
+        <div class="dropdown">
+          <button class="btn btn-sm btn-primary dropdown-toggle fw-bold" type="button" data-bs-toggle="dropdown"
+            aria-expanded="false">
+            회원가입
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-menu-item dropdown-item" href="signup.html">개인 회원가입</a></li>
+            <li><a class="dropdown-menu-item dropdown-item" href="signup_company.html">기업 회원가입</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <button class="navbar-toggler ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown"
+        aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+          <li class="nav-item">
+            <a class="nav-link active" aria-current="page" href="index.html">메인</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="marketplace.html">마켓플레이스</a>
+          </li>
+          <li class="nav-item" id="navDashboardLink" style="display: none;">
+            <a class="nav-link" href="dashboard_company.html">기업 대시보드</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- 메인 콘텐츠 영역 -->
+  <main class="container main-wrapper">
+    <div class="row align-items-center g-5">
+
+      <!-- 왼쪽: 플랫폼 소개 텍스트 및 기업용 버튼 대응 -->
+      <div class="col-lg-6 intro-text">
+        <span class="badge bg-primary mb-2">Global B2B Commerce</span>
+        <h2>국경 없는 신뢰 무역의 시작<br>상품 여권 솔루션 <span class="text-primary">HERMA-X</span></h2>
+        <p>
+          HERMA-X는 철저한 데이터 검증 기술을 바탕으로 글로벌 바이어들에게 투명하고 신뢰할 수 있는 상품 이력과 인증 정보를 제공하는 디지털 상품 여권(Product Passport) 서비스입니다.
+          헤르메스의 날개 아래 바이어의 마음을 사로잡는 프리미엄 무역을 경험해 보세요.
+        </p>
+        <div class="mt-4 d-flex flex-wrap gap-2" id="actionBtnArea">
+          <a href="signup_company.html" class="btn btn-primary px-4 py-2 fw-bold">기업 서비스 신청하기</a>
+          <a href="login.html" class="btn btn-outline-secondary px-4 py-2">파트너 로그인</a>
+        </div>
+
+        <!-- 마켓플레이스 둘러보기 유도 배너 -->
+        <div class="mt-4 pt-3 border-top">
+          <a href="marketplace.html" class="btn btn-lg btn-success text-white fw-bold px-4 py-3 shadow">
+            공개된 디지털 상품 여권 조회 (마켓플레이스) →
+          </a>
+        </div>
+      </div>
+
+      <!-- 오른쪽: 프리미엄 여권 커버 컴포넌트 -->
+      <div class="col-lg-6">
+        <div class="passport-cover" onclick="location.href='marketplace.html'" style="cursor: pointer;">
+          <div class="passport-badge">Official Trade Document</div>
+
+          <div class="logo-area">
+            <img src="./static/assets/logo_gold_stamped.png" alt="HERMA-X 헤르메스 윙즈 로고" class="logo-image"
+              onerror="this.src='https://placehold.co/200x120/101f35/e5c07b?text=HERMA-X';">
+            <div class="brand-name">HERMA-X</div>
+          </div>
+
+          <div class="passport-title">PRODUCT PASSPORT</div>
+          <div class="passport-subtitle">INTERNATIONAL COMMERCE & TRUST</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 발표 시연용 계정 퀵 스위처 위젯 -->
+  <div id="demoSwitcherContainer"></div>
+
+  <!-- 부트스트랩 JS 로드 -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- DB 초기화 및 상태 처리 스크립트 -->
+  <script type="module">
+    import { initDB, getCurrentUser, logoutUser } from './static/js/db.js';
+    import { renderDemoSwitcher } from './static/js/switcher.js';
+
+    // 1. DB 초기화 (한빛정밀 데이터 시딩 포함)
+    initDB();
+
+    // 2. 퀵 스위처 렌더링
+    renderDemoSwitcher();
+
+    // 3. UI 갱신
+    window.addEventListener('load', () => {
+      const user = getCurrentUser();
+      const authArea = document.getElementById('navAuthArea');
+      const dashboardLink = document.getElementById('navDashboardLink');
+      const actionBtnArea = document.getElementById('actionBtnArea');
+
+      if (user) {
+        // 대시보드 메뉴 노출
+        if (user.role === 'company') {
+          dashboardLink.style.display = 'block';
+        }
+
+        // 우측 상단 정보 업데이트
+        const roleStr = user.role === 'company' ? '기업' : '바이어';
+        authArea.innerHTML = `
+        <span class="text-dark fw-bold me-2" style="font-size: 14px;">${roleStr} [${user.companyName || user.email}]</span>
+        <span class="badge bg-warning text-dark me-2">${user.credits} CR</span>
+        <button class="btn btn-sm btn-outline-danger" id="navLogoutBtn">로그아웃</button>
+      `;
+
+        // 메인 버튼 영역 업데이트
+        if (user.role === 'company') {
+          actionBtnArea.innerHTML = `
+          <a href="dashboard_company.html" class="btn btn-primary px-4 py-2 fw-bold">기업 대시보드 바로가기</a>
+          <a href="marketplace.html" class="btn btn-outline-secondary px-4 py-2">상품 마켓플레이스</a>
+        `;
+        } else {
+          actionBtnArea.innerHTML = `
+          <a href="marketplace.html" class="btn btn-primary px-4 py-2 fw-bold">마켓플레이스 상품 둘러보기</a>
+        `;
+        }
+
+        document.getElementById('navLogoutBtn').addEventListener('click', () => {
+          logoutUser();
+          window.location.reload();
+        });
+      }
+    });
+  </script>
+</body>
+
+</html>
